@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -383,9 +382,8 @@ public class SecureBiometricInterfaceServiceImpl implements SecureBiometricInter
 	 * @param toDate
 	 */
 	private void validateDates(LocalDateTime fromDate, LocalDateTime toDate) {
-		LocalDate currentUTCDate = LocalDate.now(ZoneOffset.UTC);
 		// Check if fromDate is in the future
-		if (fromDate.toLocalDate().isAfter(currentUTCDate)) {
+		if (fromDate.toLocalDate().isAfter(LocalDate.now())) {
 			auditUtil.auditRequest(
 					String.format(DeviceConstant.FAILURE_CREATE, SecureBiometricInterface.class.getCanonicalName()),
 					DeviceConstant.AUDIT_SYSTEM,
@@ -399,7 +397,7 @@ public class SecureBiometricInterfaceServiceImpl implements SecureBiometricInter
 					SecureBiometricInterfaceConstant.SWCREATEDDATE_SHOULD_BE_PAST_OR_TODAY.getErrorMessage());
 		}
 		// Check if toDate is before or on today's date
-		if (toDate.toLocalDate().isBefore(currentUTCDate) || toDate.toLocalDate().isEqual(currentUTCDate)) {
+		if (toDate.toLocalDate().isBefore(LocalDate.now()) || toDate.toLocalDate().isEqual(LocalDate.now())) {
 			auditUtil.auditRequest(
 					String.format(DeviceConstant.FAILURE_CREATE, SecureBiometricInterface.class.getCanonicalName()),
 					DeviceConstant.AUDIT_SYSTEM,
@@ -413,7 +411,7 @@ public class SecureBiometricInterfaceServiceImpl implements SecureBiometricInter
 					SecureBiometricInterfaceConstant.EXPIRYDATE_SHOULD_BE_GREATERTHAN_TODAYSDATE.getErrorMessage());
 		}
 		// Check if toDate is more than 10 years from today
-		LocalDate maxYear = currentUTCDate.plusYears(maxAllowedYear);
+		LocalDate maxYear = LocalDate.now().plusYears(maxAllowedYear);
 		if (toDate.toLocalDate().isAfter(maxYear)) {
 			auditUtil.auditRequest(
 					String.format(DeviceConstant.FAILURE_CREATE, SecureBiometricInterface.class.getCanonicalName()),
@@ -491,8 +489,7 @@ public class SecureBiometricInterfaceServiceImpl implements SecureBiometricInter
 			throw new RequestException(SecureBiometricInterfaceConstant.SBI_NOT_APPROVED.getErrorCode(),
 					String.format(SecureBiometricInterfaceConstant.SBI_NOT_APPROVED.getErrorMessage(), input.getSbiId()));
 		}
-		LocalDate currentUTCDate = LocalDate.now(ZoneOffset.UTC);
-		if (validSbi.getSwExpiryDateTime().toLocalDate().isBefore(currentUTCDate)) {
+		if (validSbi.getSwExpiryDateTime().toLocalDate().isBefore(LocalDate.now())) {
 			auditUtil.auditRequest(
 					String.format(DeviceConstant.FAILURE_UPDATE, SecureBiometricInterface.class.getCanonicalName()),
 					DeviceConstant.AUDIT_SYSTEM,

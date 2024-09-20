@@ -37,7 +37,6 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
 
 @Service
@@ -564,8 +563,7 @@ public class MultiPartnerServiceImpl implements MultiPartnerService {
     }
 
     private boolean checkIfSbiExpired(SecureBiometricInterface secureBiometricInterface) {
-        LocalDate currentUTCDate = LocalDate.now(ZoneOffset.UTC);
-        return secureBiometricInterface.getSwExpiryDateTime().toLocalDate().isBefore(currentUTCDate);
+        return !secureBiometricInterface.getSwExpiryDateTime().toLocalDate().isAfter(LocalDate.now());
     }
 
     @Override
